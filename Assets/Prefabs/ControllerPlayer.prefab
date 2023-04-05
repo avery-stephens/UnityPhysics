@@ -51,8 +51,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   speed: 3
   turnRate: 3
-  jumpHeight: 3
+  jumpHeight: 2
   hitForce: 2
+  fallRateMultiplier: 0
+  lowJumpRateMultiplier: 0
+  groundTransform: {fileID: 0}
+  groundLayerMask:
+    serializedVersion: 2
+    m_Bits: 0
 --- !u!33 &3875879907414811495
 MeshFilter:
   m_ObjectHideFlags: 0
