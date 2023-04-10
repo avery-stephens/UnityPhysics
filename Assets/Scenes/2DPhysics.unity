@@ -135,40 +135,14 @@ GameObject:
   - component: {fileID: 46913627}
   - component: {fileID: 46913626}
   - component: {fileID: 46913625}
-  - component: {fileID: 46913624}
+  - component: {fileID: 46913629}
   m_Layer: 3
-  m_Name: Character (1)
+  m_Name: EvilWizard
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &46913624
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 46913623}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cf73a53e864ec5242a67f8bcef106c23, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  animator: {fileID: 490291859}
-  spriteRenderer: {fileID: 490291858}
-  speed: 4
-  turnRate: 0
-  jumpHeight: 4
-  doubleJumpHeight: 3
-  hitForce: 0
-  fallRateMultiplier: 3
-  lowJumpRateMultiplier: 2
-  groundTransform: {fileID: 362934098}
-  groundLayerMask:
-    serializedVersion: 2
-    m_Bits: 55
-  groundRadius: 0.1
 --- !u!50 &46913625
 Rigidbody2D:
   serializedVersion: 4
@@ -267,7 +241,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 46913623}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -4.51, y: 2.12, z: 0}
+  m_LocalPosition: {x: 0.9899998, y: 1.3699999, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -276,6 +250,34 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 11
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &46913629
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 46913623}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9288a59d976c2ea45a47a079203d2a74, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  animator: {fileID: 490291859}
+  spriteRenderer: {fileID: 490291858}
+  speed: 4
+  jumpHeight: 4
+  doubleJumpHeight: 3
+  fallRateMultiplier: 3
+  lowJumpRateMultiplier: 2
+  groundTransform: {fileID: 362934098}
+  groundLayerMask:
+    serializedVersion: 2
+    m_Bits: 55
+  groundRadius: 0.1
+  waypoints:
+  - {fileID: 302447610}
+  - {fileID: 434801499}
+  rayDistance: 1
 --- !u!1 &203844586
 GameObject:
   m_ObjectHideFlags: 0
@@ -391,6 +393,37 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
+--- !u!1 &302447609
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 302447610}
+  m_Layer: 0
+  m_Name: WP01
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &302447610
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 302447609}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 1.4999999, y: -1.25, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 599919474}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &346058507
 GameObject:
   m_ObjectHideFlags: 0
@@ -452,6 +485,37 @@ Transform:
   m_Children: []
   m_Father: {fileID: 46913628}
   m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &434801498
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 434801499}
+  m_Layer: 0
+  m_Name: WP02
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &434801499
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 434801498}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -2.25, y: -1.25, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 599919474}
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &468493393
 GameObject:
@@ -1136,6 +1200,39 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &599919473
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 599919474}
+  m_Layer: 0
+  m_Name: Waypoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &599919474
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 599919473}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.39715064, y: 1.6785514, z: -0.06441597}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 302447610}
+  - {fileID: 434801499}
+  m_Father: {fileID: 0}
+  m_RootOrder: 12
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &742473031
 GameObject:
@@ -1852,7 +1949,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!50 &1544034655
 Rigidbody2D:
   serializedVersion: 4
@@ -1975,10 +2072,8 @@ MonoBehaviour:
   animator: {fileID: 1751934689}
   spriteRenderer: {fileID: 1751934690}
   speed: 4
-  turnRate: 0
   jumpHeight: 4
   doubleJumpHeight: 3
-  hitForce: 0
   fallRateMultiplier: 3
   lowJumpRateMultiplier: 2
   groundTransform: {fileID: 346058508}
