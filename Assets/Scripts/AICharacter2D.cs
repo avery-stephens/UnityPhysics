@@ -3,13 +3,12 @@ using UnityEditor.Search;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody2D))]
-public class AICharacter2D : MonoBehaviour
+public class AICharacter2D : MonoBehaviour, IDamagable
 {
 	[SerializeField] Animator animator;
 	[SerializeField] SpriteRenderer spriteRenderer;
 	[SerializeField] float speed;
 	[SerializeField] float jumpHeight;
-	[SerializeField] float doubleJumpHeight;
 	[SerializeField, Range(1, 5)] float fallRateMultiplier;
 	[SerializeField, Range(1, 5)] float lowJumpRateMultiplier;
 	[Header("Ground")]
@@ -19,6 +18,10 @@ public class AICharacter2D : MonoBehaviour
 	[Header("AI")]
 	[SerializeField] Transform[] waypoints;
 	[SerializeField] float rayDistance = 1;
+	[SerializeField] string enemyTag;
+	[SerializeField] LayerMask raycastLayerMask;
+
+	public float health = 100;
 
 	Rigidbody2D rb;
 
@@ -26,6 +29,7 @@ public class AICharacter2D : MonoBehaviour
 	bool faceRight = true;
 	float groundAngle = 0;
 	Transform targetWaypoint = null;
+	GameObject enemy = null;
 
 	enum State
 	{
@@ -36,7 +40,7 @@ public class AICharacter2D : MonoBehaviour
 	}
 
 	State state = State.IDLE;
-	float stateTimer = 0;
+	float stateTimer = 1;
 
 	void Start()
 	{
@@ -45,37 +49,60 @@ public class AICharacter2D : MonoBehaviour
 
 	void Update()
 	{
-		Vector2 direction = Vector2.zero;
 		//update AI
+		CheckEnemySeen();
+		Vector2 direction = Vector2.zero;
 		switch (state)
 		{
 			case State.IDLE:
-				if (CanSeePlayer()) state = State.CHASE;
-
-				stateTimer += Time.deltaTime;
-				if (stateTimer >= 0.5f)
+				if (enemy != null) state = State.CHASE;
+				stateTimer -= Time.deltaTime;
+				if (stateTimer <= 0)
 				{
 					SetNewWaypointTarget();
 					state = State.PATROL;
 				}
 				break;
 			case State.PATROL:
-				if (CanSeePlayer()) state = State.CHASE;
-
-				direction.x = Mathf.Sign(targetWaypoint.position.x - transform.position.x);
-				float dx = Mathf.Abs(transform.position.x - targetWaypoint.position.x);
-				if (dx <= 0.25f)
 				{
-					state = State.IDLE;
-					stateTimer = 0;
-					//direction.x = 0;
+					if (enemy != null) state = State.CHASE;
+					direction.x = Mathf.Sign(targetWaypoint.position.x - transform.position.x);
+					float dx = Mathf.Abs(transform.position.x - targetWaypoint.position.x);
+					if (dx <= 0.25f)
+					{
+						state = State.IDLE;
+						stateTimer = 1;
+						//direction.x = 0;
+					}
+					//if (transform.position.x > targetWaypoint.position.x) direction.x = 1;
+					//else direction.x = -1;
 				}
-				//if (transform.position.x > targetWaypoint.position.x) direction.x = 1;
-				//else direction.x = -1;
 				break;
 			case State.CHASE:
+				{
+					if (enemy == null)
+					{
+						state = State.IDLE;
+						stateTimer = 1;
+						break;
+					}
+					float dx = Mathf.Abs(enemy.transform.position.x - transform.position.x);
+					if (dx <= 1f)
+					{
+						state = State.ATTACK;
+						animator.SetTrigger("Attack");
+					}
+					else
+					{
+						direction.x = Mathf.Sign(enemy.transform.position.x - transform.position.x);
+					}
+				}
 				break;
 			case State.ATTACK:
+				if (animator.GetCurrentAnimatorStateInfo(0).normalizedTime > 1 && !animator.IsInTransition(0))
+				{
+					state = State.CHASE;
+				}
 				break;
 			default: 
 				break;
@@ -91,12 +118,12 @@ public class AICharacter2D : MonoBehaviour
 		if (onGround)
 		{
 			if(velocity.y < 0) velocity.y = 0;
-			if (Input.GetButtonDown("Jump"))
-			{
-				velocity.y += Mathf.Sqrt(jumpHeight * -2 * Physics.gravity.y);
-				StartCoroutine(DoubleJump());
-				animator.SetTrigger("Jump");
-			}
+			//if (Input.GetButtonDown("Jump"))
+			//{
+			//	velocity.y += Mathf.Sqrt(jumpHeight * -2 * Physics.gravity.y);
+			//	StartCoroutine(DoubleJump());
+			//	animator.SetTrigger("Jump");
+			//}
 		}
 
 		velocity.y += Physics.gravity.y * Time.deltaTime;
@@ -126,22 +153,23 @@ public class AICharacter2D : MonoBehaviour
 		Gizmos.DrawSphere(groundTransform.position, groundRadius);
 	}
 
-	IEnumerator DoubleJump()
-	{
-		// wait a little after the jump to allow a double jump
-		yield return new WaitForSeconds(0.01f);
-		// allow a double jump while moving up
-		while (velocity.y > 0)
-		{
-			// if "jump" pressed add jump velocity
-			if (Input.GetButtonDown("Jump"))
-			{
-				velocity.y += Mathf.Sqrt(doubleJumpHeight * -2 * Physics.gravity.y);
-				break;
-			}
-			yield return null;
-		}
-	}
+	//IEnumerator DoubleJump()
+	//{
+	//	// wait a little after the jump to allow a double jump
+	//	yield return new WaitForSeconds(0.01f);
+	//	// allow a double jump while moving up
+	//	while (velocity.y > 0)
+	//	{
+	//		// if "jump" pressed add jump velocity
+	//		if (Input.GetButtonDown("Jump"))
+	//		{
+	//			velocity.y += Mathf.Sqrt(doubleJumpHeight * -2 * Physics.gravity.y);
+	//			break;
+	//		}
+	//		yield return null;
+	//	}
+	//}
+
 	private void Flip()
 	{
 		faceRight = !faceRight;
@@ -158,11 +186,20 @@ public class AICharacter2D : MonoBehaviour
 		targetWaypoint = waypoint;
 	}
 
-	private bool CanSeePlayer()
+	private void CheckEnemySeen()
 	{
-		RaycastHit2D raycastHit = Physics2D.Raycast(transform.position, ((faceRight) ? Vector2.right : Vector2.left) * rayDistance);
-		Debug.DrawRay(transform.position, ((faceRight) ? Vector2.right : Vector2.left) * rayDistance);
+		enemy = null;
+		RaycastHit2D raycastHit = Physics2D.Raycast(transform.position, ((faceRight) ? Vector2.right : Vector2.left), rayDistance, raycastLayerMask);
+		if (raycastHit.collider != null && raycastHit.collider.gameObject.CompareTag(enemyTag))
+		{
+			enemy = raycastHit.collider.gameObject;
+			Debug.DrawRay(transform.position, ((faceRight) ? Vector2.right : Vector2.left) * rayDistance, Color.red);
+		}
+	}
 
-		return raycastHit.collider != null && raycastHit.collider.gameObject.CompareTag("Player");
+	public void Damage(int damage)
+	{
+		health -= damage;
+		print(health);
 	}
 }
