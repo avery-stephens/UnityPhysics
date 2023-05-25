@@ -1,6 +1,10 @@
 using System.Collections;
+using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEditor.Search;
 using UnityEngine;
+using UnityEngine.Rendering;
+using UnityEngine.UIElements;
 
 [RequireComponent(typeof(Rigidbody2D))]
 public class AICharacter2D : MonoBehaviour, IDamagable
@@ -20,6 +24,9 @@ public class AICharacter2D : MonoBehaviour, IDamagable
 	[SerializeField] float rayDistance = 1;
 	[SerializeField] string enemyTag;
 	[SerializeField] LayerMask raycastLayerMask;
+	[Header("Attack")]
+	[SerializeField] Transform attackTransform;
+	[SerializeField] float attackRadius;
 
 	public float health = 100;
 
@@ -27,7 +34,6 @@ public class AICharacter2D : MonoBehaviour, IDamagable
 
 	Vector2 velocity = Vector2.zero;
 	bool faceRight = true;
-	float groundAngle = 0;
 	Transform targetWaypoint = null;
 	GameObject enemy = null;
 
@@ -36,7 +42,8 @@ public class AICharacter2D : MonoBehaviour, IDamagable
 		IDLE,
 		PATROL,
 		CHASE,
-		ATTACK
+		ATTACK,
+		DEATH
 	}
 
 	State state = State.IDLE;
@@ -71,7 +78,7 @@ public class AICharacter2D : MonoBehaviour, IDamagable
 					if (dx <= 0.25f)
 					{
 						state = State.IDLE;
-						stateTimer = 1;
+						stateTimer = 1f;
 						//direction.x = 0;
 					}
 					//if (transform.position.x > targetWaypoint.position.x) direction.x = 1;
@@ -80,17 +87,20 @@ public class AICharacter2D : MonoBehaviour, IDamagable
 				break;
 			case State.CHASE:
 				{
+					//if enemy isnt seen, return to idle state
 					if (enemy == null)
 					{
 						state = State.IDLE;
 						stateTimer = 1;
 						break;
 					}
+					
+					//if position/distance from enemy is less than one, set state to attack and set attack trigger
 					float dx = Mathf.Abs(enemy.transform.position.x - transform.position.x);
-					if (dx <= 1f)
+					if (dx <= 1.75f)
 					{
-						state = State.ATTACK;
 						animator.SetTrigger("Attack");
+						state = State.ATTACK;
 					}
 					else
 					{
@@ -99,13 +109,23 @@ public class AICharacter2D : MonoBehaviour, IDamagable
 				}
 				break;
 			case State.ATTACK:
+				//if animator normalized time is greater than one and animation is not in transition, set state to chase
 				if (animator.GetCurrentAnimatorStateInfo(0).normalizedTime > 1 && !animator.IsInTransition(0))
 				{
 					state = State.CHASE;
 				}
 				break;
+			case State.DEATH:
+				speed = 0;
+				break;
 			default: 
 				break;
+		}
+
+		if (health <= 0)
+		{
+			Death();
+			state = State.DEATH;
 		}
 
 		//check if on ground
@@ -178,12 +198,35 @@ public class AICharacter2D : MonoBehaviour, IDamagable
 
 	private void SetNewWaypointTarget()
 	{
-		Transform waypoint = null;
+		Transform waypoint;
 		do
 		{
 			waypoint = waypoints[Random.Range(0, waypoints.Length)];
 		} while (waypoint == targetWaypoint);
 		targetWaypoint = waypoint;
+	}
+
+	private void Death()
+	{
+		animator.SetBool("Death", true);
+		var scoreManage = FindObjectOfType<ControllerCharacter2D>();
+		scoreManage.AddPoints(100);
+		//yield return new WaitForSeconds(4.0f);
+		Destroy(gameObject);
+	}
+
+	private void CheckAttack()
+	{
+		Collider2D[] colliders = Physics2D.OverlapCircleAll(attackTransform.position, attackRadius);
+		foreach (Collider2D collider in colliders)
+		{
+			if (collider.gameObject == gameObject) continue;
+
+			if (collider.gameObject.TryGetComponent<IDamagable>(out var damagable))
+			{
+				damagable.Damage(5);
+			}
+		}
 	}
 
 	private void CheckEnemySeen()
@@ -200,6 +243,7 @@ public class AICharacter2D : MonoBehaviour, IDamagable
 	public void Damage(int damage)
 	{
 		health -= damage;
+		animator.SetTrigger("Hurt");
 		print(health);
 	}
 }
